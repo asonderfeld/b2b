@@ -74,6 +74,20 @@ export default async function AdminContractDetailPage({ params }: { params: { id
               <div className="text-neutral-400">{contract.secondContactId ? "Noch keine Unterschrift" : "–"}</div>
             )}
           </div>
+          <div>
+            <div className="text-neutral-500">Für mk | hotels ({contract.responsibleUser.name})</div>
+            {contract.responsibleUser.signatureUrl ? (
+              <img
+                src={contract.responsibleUser.signatureUrl}
+                alt="Unterschrift mk | hotels"
+                className="h-16 border border-neutral-200 rounded bg-white mt-1"
+              />
+            ) : (
+              <div className="text-neutral-400">
+                Keine Unterschrift hinterlegt (unter „Mein Profil" möglich)
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

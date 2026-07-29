@@ -122,6 +122,11 @@ model User {
   role         UserRole  @default(SALES)
   contactId    String?   @unique
   contact      Contact?  @relation(fields: [contactId], references: [id])
+  // Digitale Unterschrift (PNG als Base64-Data-URL, analog zu den
+  // Kunden-Unterschriften auf Contract.signature1Url/signature2Url) – wird
+  // von ADMIN/SALES-Nutzern im eigenen Profil hinterlegt und erscheint auf
+  // dem finalen Vertragsdokument als Unterschrift von mk | hotels.
+  signatureUrl String?   @db.Text
   createdAt    DateTime  @default(now())
 
   responsibleForContracts Contract[] @relation("ContractResponsibleUser")

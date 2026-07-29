@@ -81,6 +81,20 @@ berechtigte Nutzer auf `/login` um. Zusätzlich prüft jede API-Route unter
 `lib/authz.ts`), damit der Schutz nicht ausschließlich von der Middleware
 abhängt.
 
+**Nutzerverwaltung (`/admin/users`)**: Anlegen/Bearbeiten/Löschen von
+`ADMIN`-/`SALES`-Logins ist – anders als der übrige `/admin`-Bereich –
+bewusst nur der Rolle `ADMIN` vorbehalten. `CUSTOMER`-Logins tauchen dort
+nicht auf, die entstehen automatisch über den Magic-Link-Login (siehe
+[E-Mail-Versand & Portal-Login](#e-mail-versand--portal-login)).
+
+**Digitale Unterschrift für Vertragsdokumente (`/admin/profile`)**: Jeder
+`ADMIN`-/`SALES`-Nutzer kann unter „Mein Profil" eine eigene Unterschrift als
+PNG hochladen (gespeichert als Base64-Data-URL in `User.signatureUrl`,
+analog zu den Kunden-Unterschriften). Ist ein Nutzer als Verantwortlicher
+(`Contract.responsibleUserId`) für einen Vertrag hinterlegt, erscheint seine
+Unterschrift automatisch auf der Vertragsansicht im Kundenportal
+(`/portal/contracts/[id]/print`) sowie in der internen Vertragsansicht.
+
 ## Wichtige Seiten & Workflows
 
 - **`/anfrage`** – öffentliches Anfrageformular (kein Login nötig). Legt bei

@@ -19,6 +19,7 @@ export default async function PortalContractPrintPage({ params }: { params: { id
       company: true,
       contact: true,
       secondContact: true,
+      responsibleUser: true,
       rates: { include: { rate: { include: { hotel: true } } } },
       terms: { include: { term: true } },
     },
@@ -135,6 +136,15 @@ export default async function PortalContractPrintPage({ params }: { params: { id
             <div className="text-xs text-neutral-500 mt-1">{formatDate(contract.signature2Date)}</div>
           </div>
         )}
+        <div>
+          <div className="text-neutral-500 mb-1">Für mk | hotels ({contract.responsibleUser.name})</div>
+          {contract.responsibleUser.signatureUrl ? (
+            <img src={contract.responsibleUser.signatureUrl} alt="Unterschrift mk | hotels" className="h-16" />
+          ) : (
+            <div className="h-16 border-b border-neutral-400" />
+          )}
+          <div className="text-xs text-neutral-500 mt-1">{formatDate(contract.contractDate)}</div>
+        </div>
       </section>
 
       <footer className="mt-12 text-xs text-neutral-400 border-t border-neutral-200 pt-4">

@@ -5,7 +5,7 @@ import { SignOutButton } from "@/components/SignOutButton";
 
 export const dynamic = "force-dynamic";
 
-const NAV_ITEMS = [
+const BASE_NAV_ITEMS = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/requests", label: "Anfragen" },
   { href: "/admin/contracts", label: "Verträge" },
@@ -22,6 +22,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect("/login");
   }
 
+  const navItems = [
+    ...BASE_NAV_ITEMS,
+    ...(session.user.role === "ADMIN" ? [{ href: "/admin/users", label: "Nutzer" }] : []),
+    { href: "/admin/profile", label: "Mein Profil" },
+  ];
+
   return (
     <div className="min-h-screen flex">
       <aside className="w-64 bg-primary text-white flex-shrink-0 hidden md:flex md:flex-col">
@@ -30,7 +36,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <div className="text-xs font-normal text-white/70 mt-1">Interner Bereich</div>
         </div>
         <nav className="flex-1 px-2 py-4 space-y-1">
-          {NAV_ITEMS.map((item) => (
+          {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
