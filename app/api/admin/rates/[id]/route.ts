@@ -1,0 +1,39 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { requireRole, INTERNAL_ROLES } from "@/lib/authz";
+
+export const dynamic = "force-dynamic";
+
+function mapData(data: any) {
+  return {
+    hotelId: data.hotelId,
+    year: Number(data.year),
+    status: data.status,
+    rateTier: data.rateTier,
+    rateName: data.rateName,
+    rateName2: data.rateName2 || null,
+    breakfastPricePerPerson:
+      data.breakfastPricePerPerson === "" || data.breakfastPricePerPerson == null
+        ? null
+        : Number(data.breakfastPricePerPerson),
+    roomNightsFrom: data.roomNightsFrom === "" || data.roomNightsFrom == null ? null : Number(data.roomNightsFrom),
+    roomNightsTo: data.roomNightsTo === "" || data.roomNightsTo == null ? null : Number(data.roomNightsTo),
+  };
+}
+
+export async function PUT(req: Request, { params }: { params: { id: string } }) {
+  const auth = await requireRole([...INTERNAL_ROLES]);
+  if ("response" in auth) return auth.response;
+
+  const data = await req.json().catch(() => ({}));
+  const rate = await prisma.rate.update({ where: { id: params.id }, data: mapData(data) });
+  return NextResponse.json({ rate });
+}
+
+export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+  const auth = await requireRole([...INTERNAL_ROLES]);
+  if ("response" in auth) return auth.response;
+
+  await prisma.rate.delete({ where: { id: params.id } });
+  return NextResponse.json({ ok: true });
+}

@@ -1,0 +1,4 @@
+Firma,Firma Zusatz,Straße/Nr.,PLZ,Ort,Land,E-Mail (allgemein),E-Mail (Rechnung),USt-IdNr,Telefon,Website,Status,ID (Apaleo),Code (Apaleo)
+Beispiel Industrie GmbH,,Industriestraße 10,70565,Stuttgart,Deutschland,info@beispiel-industrie.de,buchhaltung@beispiel-industrie.de,DE111111111,+49 711 1110000,https://www.beispiel-industrie.de,Kunde,,
+Nordwind Consulting AG,,Hafenplatz 3,20457,Hamburg,Deutschland,kontakt@nordwind-consulting.de,rechnungen@nordwind-consulting.de,DE222222222,+49 40 2220000,https://www.nordwind-consulting.de,Zielkunde,,
+Alpen Reisen e.V.,,Bergweg 7,80331,München,Deutschland,,info@alpen-reisen-verein.de,DE333333333,+49 89 3330000,,Verein,,

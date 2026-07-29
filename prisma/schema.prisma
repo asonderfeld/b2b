@@ -1,0 +1,330 @@
+// mk | hotels - Firmenvertraege-App
+// Prisma Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum UserRole {
+  ADMIN
+  SALES
+  CUSTOMER
+}
+
+enum CompanyStatus {
+  INTERESSENT
+  ZIELKUNDE
+  KUNDE
+  DIENSTLEISTER
+  KOOPERATIONSPARTNER
+  EHEMALIGER_KUNDE
+  VEREIN
+}
+
+enum Salutation {
+  HERR
+  FRAU
+  DIVERS
+}
+
+enum Title {
+  DR
+  PROF
+  PROF_DR
+}
+
+enum FormalAddress {
+  SIE
+  DU
+}
+
+enum RateStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum RateTier {
+  RATE_GE_200
+  RATE_GE_100
+  RATE_GE_50
+  CULTURE
+}
+
+enum ContractTermLanguage {
+  DE
+  EN
+}
+
+enum RequestSource {
+  VENDITO
+  VERTRIEBSPARTNER
+  WEBSITE
+  EVENTMACHINE
+  EMPFEHLUNG
+  MESSE
+  KALTAKQUISE
+  ONLINE_WERBUNG
+  PRESSE
+  PERSOENLICHES_UMFELD
+  SONSTIGE
+}
+
+enum RequestStatus {
+  NEW
+  IN_REVIEW
+  OFFER_SENT
+  CONVERTED
+  REJECTED
+}
+
+enum ContractStatus {
+  DRAFT
+  AWAITING_SIGNATURE
+  AWAITING_FINALIZATION
+  RUNNING
+  ENDED
+  NOT_CONCLUDED
+}
+
+enum ContractStage {
+  STAGE_0_REQUEST_RECEIVED
+  STAGE_1_DRAFT_CREATED
+  STAGE_2_SENT_EXISTING_CUSTOMER
+  STAGE_2_SENT_NEW_CUSTOMER
+  STAGE_3_OFFER_ACCEPTED
+  STAGE_4_FINAL_CREATED
+  STAGE_5_FINAL_SENT
+}
+
+enum ContractLanguage {
+  DE
+  EN
+}
+
+// ---------------------------------------------------------------------------
+// Models
+// ---------------------------------------------------------------------------
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         UserRole  @default(SALES)
+  contactId    String?   @unique
+  contact      Contact?  @relation(fields: [contactId], references: [id])
+  createdAt    DateTime  @default(now())
+
+  responsibleForContracts Contract[] @relation("ContractResponsibleUser")
+}
+
+model Company {
+  id             String        @id @default(cuid())
+  customerNumber String        @unique
+  status         CompanyStatus @default(INTERESSENT)
+  name           String
+  nameAddition   String?
+  street         String
+  zip            String
+  city           String
+  country        String        @default("Deutschland")
+  emailGeneral   String?
+  emailInvoice   String
+  vatId          String
+  phone          String?
+  website        String?
+  industry       String?
+  apaleoId       String?
+  apaleoCode     String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  contacts         Contact[]
+  contractRequests ContractRequest[]
+  contracts        Contract[]
+}
+
+model Contact {
+  id            String        @id @default(cuid())
+  companyId     String
+  company       Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  salutation    Salutation
+  title         Title?
+  firstName     String
+  lastName      String
+  position      String
+  department    String?
+  email         String
+  phone         String
+  phoneMobile   String?
+  formalAddress FormalAddress @default(SIE)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  user                    User?
+  contractRequests        ContractRequest[]
+  contractsAsMainContact  Contract[]        @relation("ContractMainContact")
+  contractsAsSecondContact Contract[]       @relation("ContractSecondContact")
+  loginTokens             LoginToken[]
+}
+
+model Hotel {
+  id                        String    @id @default(cuid())
+  name                      String
+  street                    String
+  zip                       String
+  city                      String
+  country                   String    @default("Deutschland")
+  category                  String?
+  apaleoId                  String?
+  apaleoCode                String?
+  currency                  String    @default("EUR")
+  website                   String?
+  reservationPhone          String?
+  reservationEmail          String?
+  activeForCorporateRates   Boolean   @default(true)
+  contractDescriptionDe     String?   @db.Text
+  contractDescriptionEn     String?   @db.Text
+  parkingInfoDe             String?   @db.Text
+  parkingInfoEn             String?   @db.Text
+  cancellationTermsDe       String?   @db.Text
+  cancellationTermsEn       String?   @db.Text
+  otherInfoDe               String?   @db.Text
+  otherInfoEn               String?   @db.Text
+
+  rates             Rate[]
+  requestHotelLines RequestHotelLine[]
+}
+
+model Rate {
+  id                      String     @id @default(cuid())
+  hotelId                 String
+  hotel                   Hotel      @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  year                    Int
+  status                  RateStatus @default(ACTIVE)
+  rateTier                RateTier
+  rateName                String
+  rateName2               String?
+  breakfastPricePerPerson Decimal?   @db.Decimal(10, 2)
+  roomNightsFrom          Int?
+  roomNightsTo            Int?
+  createdAt               DateTime   @default(now())
+  updatedAt               DateTime   @updatedAt
+
+  contracts ContractRate[]
+}
+
+model ContractTerm {
+  id        String                @id @default(cuid())
+  title     String
+  language  ContractTermLanguage
+  validFrom DateTime
+  fileUrl   String
+  createdAt DateTime              @default(now())
+
+  contracts ContractTermLink[]
+}
+
+model ContractRequest {
+  id            String        @id @default(cuid())
+  requestNumber String        @unique
+  companyId     String
+  company       Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  contactId     String
+  contact       Contact       @relation(fields: [contactId], references: [id])
+  source        RequestSource @default(SONSTIGE)
+  notes         String?       @db.Text
+  status        RequestStatus @default(NEW)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  hotelLines RequestHotelLine[]
+  contracts  Contract[]
+}
+
+model RequestHotelLine {
+  id             String          @id @default(cuid())
+  requestId      String
+  request        ContractRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  hotelId        String
+  hotel          Hotel           @relation(fields: [hotelId], references: [id])
+  nightsPerYear  Int
+}
+
+model Contract {
+  id                   String          @id @default(cuid())
+  contractNumber       String          @unique
+  status               ContractStatus  @default(DRAFT)
+  stage                ContractStage   @default(STAGE_0_REQUEST_RECEIVED)
+  language             ContractLanguage @default(DE)
+  requestId            String?
+  request              ContractRequest? @relation(fields: [requestId], references: [id])
+  companyId            String
+  company              Company         @relation(fields: [companyId], references: [id])
+  contactId            String
+  contact              Contact         @relation("ContractMainContact", fields: [contactId], references: [id])
+  secondContactId      String?
+  secondContact        Contact?        @relation("ContractSecondContact", fields: [secondContactId], references: [id])
+  responsibleUserId    String
+  responsibleUser      User            @relation("ContractResponsibleUser", fields: [responsibleUserId], references: [id])
+  contractEndDate      DateTime
+  additionalAgreement  String?         @db.Text
+  contractDate         DateTime?
+  contractFileUrl      String?
+  signature1Url        String?         @db.Text
+  signature1Date       DateTime?
+  signature2Url        String?         @db.Text
+  signature2Date       DateTime?
+  acceptedTerms        Boolean         @default(false)
+  sentToCustomerAt     DateTime?
+  customerNotes        String?         @db.Text
+  paymentOnInvoice     Boolean         @default(false)
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  rates ContractRate[]
+  terms ContractTermLink[]
+}
+
+model ContractRate {
+  contractId String
+  contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  rateId     String
+  rate       Rate     @relation(fields: [rateId], references: [id], onDelete: Cascade)
+
+  @@id([contractId, rateId])
+}
+
+model ContractTermLink {
+  contractId String
+  contract   Contract     @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  termId     String
+  term       ContractTerm @relation(fields: [termId], references: [id], onDelete: Cascade)
+
+  @@id([contractId, termId])
+}
+
+// Einmal verwendbare, zeitlich begrenzte Login-Links für Firmenkontakte
+// (Portal-Zugriff per E-Mail-Link statt selbst vergebenem Passwort, siehe
+// lib/tokens.ts und den "magic-link"-Provider in lib/auth.ts).
+model LoginToken {
+  id         String    @id @default(cuid())
+  token      String    @unique
+  contactId  String
+  contact    Contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  contractId String?
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([contactId])
+}

@@ -1,0 +1,3 @@
+Vertragsnummer,Firma,Ansprechpartner E-Mail,Status,Stufe,Sprache,Laufzeit bis,Zusatzvereinbarung,Verantwortlicher E-Mail,Zahlung auf Rechnung
+#000101,Beispiel Industrie GmbH,thomas.beispiel@beispiel-industrie.de,Laufend,5,Deutsch,2026-12-31,,vertrieb@mkhotels.de,Ja
+#000102,Nordwind Consulting AG,sabine.nordmann@nordwind-consulting.de,Entwurf,1,Deutsch,2027-06-30,,vertrieb@mkhotels.de,Nein
