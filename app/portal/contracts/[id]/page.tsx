@@ -16,10 +16,17 @@ export const dynamic = "force-dynamic";
 
 export default async function PortalContractDetailPage({ params }: { params: { id: string } }) {
   const session = await getSession();
-  if (!session?.user.contactId) redirect("/login");
+  if (!session) redirect("/login");
 
-  const viewerContact = await prisma.contact.findUnique({ where: { id: session.user.contactId } });
-  if (!viewerContact) redirect("/login");
+  const isInternal = session.user.role === "ADMIN" || session.user.role === "SALES";
+
+  let viewerCompanyId: string | null = null;
+  if (!isInternal) {
+    if (!session.user.contactId) redirect("/login");
+    const viewerContact = await prisma.contact.findUnique({ where: { id: session.user.contactId } });
+    if (!viewerContact) redirect("/login");
+    viewerCompanyId = viewerContact.companyId;
+  }
 
   const contract = await prisma.contract.findUnique({
     where: { id: params.id },
@@ -32,7 +39,7 @@ export default async function PortalContractDetailPage({ params }: { params: { i
     },
   });
 
-  if (!contract || contract.companyId !== viewerContact.companyId) {
+  if (!contract || (!isInternal && contract.companyId !== viewerCompanyId)) {
     notFound();
   }
 

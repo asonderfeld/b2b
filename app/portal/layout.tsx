@@ -6,7 +6,8 @@ export const dynamic = "force-dynamic";
 
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
-  if (!session || session.user.role !== "CUSTOMER") {
+  const allowedRoles = ["CUSTOMER", "ADMIN", "SALES"];
+  if (!session || !allowedRoles.includes(session.user.role)) {
     redirect("/login");
   }
 

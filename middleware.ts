@@ -10,7 +10,10 @@ export default withAuth(
       return NextResponse.redirect(new URL("/login", req.url));
     }
 
-    if (pathname.startsWith("/portal") && role !== "CUSTOMER") {
+    // ADMIN/SALES dürfen /portal ebenfalls betreten (z.B. Vertragsvorschau
+    // aus dem internen Bereich heraus) – welche Verträge sie dort sehen
+    // dürfen, wird zusätzlich serverseitig in den jeweiligen Seiten geprüft.
+    if (pathname.startsWith("/portal") && role !== "CUSTOMER" && role !== "ADMIN" && role !== "SALES") {
       return NextResponse.redirect(new URL("/login", req.url));
     }
 
