@@ -104,17 +104,30 @@ export default async function PortalContractDetailPage({ params }: { params: { i
         <ul className="space-y-1">
           {contract.terms.map((t) => (
             <li key={t.termId}>
-              <a
-                href={t.term.fileUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="text-primary underline"
-              >
-                {t.term.title} ({t.term.language}, gültig ab {formatDate(t.term.validFrom)})
-              </a>
+              {t.term.fileUrl ? (
+                <a
+                  href={t.term.fileUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary underline"
+                >
+                  {t.term.title} ({t.term.language}, gültig ab {formatDate(t.term.validFrom)})
+                </a>
+              ) : (
+                <span>
+                  {t.term.title} ({t.term.language}, gültig ab {formatDate(t.term.validFrom)})
+                </span>
+              )}
             </li>
           ))}
         </ul>
+        <p className="text-xs text-neutral-500 mt-2">
+          Der vollständige Vertragstext ist Teil der{" "}
+          <Link href={`/portal/contracts/${contract.id}/print`} className="underline">
+            Druckansicht
+          </Link>
+          .
+        </p>
       </div>
 
       {contract.additionalAgreement && (

@@ -22,6 +22,7 @@ export default async function AdminTermsPage() {
               <th>Titel</th>
               <th>Sprache</th>
               <th>Gültig ab</th>
+              <th>Text</th>
               <th>Datei</th>
             </tr>
           </thead>
@@ -35,12 +36,13 @@ export default async function AdminTermsPage() {
                 </td>
                 <td>{t.language}</td>
                 <td>{formatDate(t.validFrom)}</td>
-                <td className="truncate max-w-xs">{t.fileUrl}</td>
+                <td>{t.bodyText ? "hinterlegt" : "–"}</td>
+                <td className="truncate max-w-xs">{t.fileUrl || "–"}</td>
               </tr>
             ))}
             {terms.length === 0 && (
               <tr>
-                <td colSpan={4} className="text-center text-neutral-500 py-6">
+                <td colSpan={5} className="text-center text-neutral-500 py-6">
                   Keine Vertragsbedingungen vorhanden.
                 </td>
               </tr>
