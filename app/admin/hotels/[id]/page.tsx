@@ -33,6 +33,10 @@ export default async function EditHotelPage({ params }: { params: { id: string }
           parkingInfoEn: hotel.parkingInfoEn ?? "",
           cancellationTermsDe: hotel.cancellationTermsDe ?? "",
           cancellationTermsEn: hotel.cancellationTermsEn ?? "",
+          vatInfoDe: hotel.vatInfoDe ?? "",
+          vatInfoEn: hotel.vatInfoEn ?? "",
+          internetInfoDe: hotel.internetInfoDe ?? "",
+          internetInfoEn: hotel.internetInfoEn ?? "",
           otherInfoDe: hotel.otherInfoDe ?? "",
           otherInfoEn: hotel.otherInfoEn ?? "",
         }}

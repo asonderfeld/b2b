@@ -21,6 +21,7 @@ export default async function ProfilePage() {
         initial={{
           name: user.name,
           email: user.email,
+          jobTitle: user.jobTitle,
           signatureUrl: user.signatureUrl,
         }}
       />

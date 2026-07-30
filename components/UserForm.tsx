@@ -8,6 +8,7 @@ export type UserFormData = {
   id?: string;
   name: string;
   email: string;
+  jobTitle: string;
   role: "ADMIN" | "SALES";
   password: string;
   hasSignature?: boolean;
@@ -16,6 +17,7 @@ export type UserFormData = {
 const EMPTY: UserFormData = {
   name: "",
   email: "",
+  jobTitle: "",
   role: "SALES",
   password: "",
 };
@@ -81,6 +83,19 @@ export function UserForm({ initial }: { initial?: UserFormData }) {
           value={form.email}
           onChange={(e) => set("email", e.target.value)}
         />
+      </div>
+      <div>
+        <label className="label">Jobtitel</label>
+        <input
+          className="input"
+          placeholder="z.B. Sales Manager"
+          value={form.jobTitle}
+          onChange={(e) => set("jobTitle", e.target.value)}
+        />
+        <p className="text-xs text-neutral-500 mt-1">
+          Erscheint im Unterschriftsblock des Vertragsdokuments (kann der Nutzer auch selbst unter
+          „Mein Profil" pflegen).
+        </p>
       </div>
       <div>
         <label className="label">Rolle *</label>

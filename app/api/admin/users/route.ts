@@ -13,7 +13,7 @@ export async function POST(req: Request) {
   if ("response" in auth) return auth.response;
 
   const data = await req.json().catch(() => ({}));
-  const { name, email, password, role } = data;
+  const { name, email, password, role, jobTitle } = data;
 
   if (!name || !email || !password) {
     return NextResponse.json(
@@ -39,6 +39,7 @@ export async function POST(req: Request) {
         email: email.toLowerCase().trim(),
         passwordHash,
         role,
+        jobTitle: jobTitle?.trim() || null,
       },
     });
     return NextResponse.json({ user: { id: user.id, name: user.name, email: user.email, role: user.role } }, { status: 201 });

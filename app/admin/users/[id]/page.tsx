@@ -20,6 +20,7 @@ export default async function EditUserPage({ params }: { params: { id: string } 
           id: user.id,
           name: user.name,
           email: user.email,
+          jobTitle: user.jobTitle ?? "",
           role: user.role as "ADMIN" | "SALES",
           password: "",
           hasSignature: !!user.signatureUrl,

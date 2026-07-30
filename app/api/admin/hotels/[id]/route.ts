@@ -25,6 +25,10 @@ function mapData(data: any) {
     parkingInfoEn: data.parkingInfoEn || null,
     cancellationTermsDe: data.cancellationTermsDe || null,
     cancellationTermsEn: data.cancellationTermsEn || null,
+    vatInfoDe: data.vatInfoDe || null,
+    vatInfoEn: data.vatInfoEn || null,
+    internetInfoDe: data.internetInfoDe || null,
+    internetInfoEn: data.internetInfoEn || null,
     otherInfoDe: data.otherInfoDe || null,
     otherInfoEn: data.otherInfoEn || null,
   };

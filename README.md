@@ -13,10 +13,11 @@ Datenbank, Nutzerverwaltung (intern + Kundenportal) und Workflow.
 4. [Rollen & Login](#rollen--login)
 5. [Wichtige Seiten & Workflows](#wichtige-seiten--workflows)
 6. [E-Mail-Versand & Portal-Login](#e-mail-versand--portal-login)
-7. [Deployment auf Vercel](#deployment-auf-vercel)
-8. [Migration aus UMNION (CSV-Import)](#migration-aus-umnion-csv-import)
-9. [Apaleo-Integration](#apaleo-integration)
-10. [Bekannte Vereinfachungen / offene Punkte](#bekannte-vereinfachungen--offene-punkte)
+7. [Vertragsdokument (Druckansicht)](#vertragsdokument-druckansicht)
+8. [Deployment auf Vercel](#deployment-auf-vercel)
+9. [Migration aus UMNION (CSV-Import)](#migration-aus-umnion-csv-import)
+10. [Apaleo-Integration](#apaleo-integration)
+11. [Bekannte Vereinfachungen / offene Punkte](#bekannte-vereinfachungen--offene-punkte)
 
 ## Projektübersicht
 
@@ -151,6 +152,53 @@ Credentials-Provider (`id: "magic-link"`, siehe `lib/auth.ts`) den Kontakt
 serverseitig an und legt bei Erstlogin automatisch ein `User`-Konto mit
 Rolle `CUSTOMER` an. Der reguläre E-Mail-/Passwort-Login (`/login`) bleibt
 für interne Nutzer (`ADMIN`/`SALES`) unverändert bestehen.
+
+## Vertragsdokument (Druckansicht)
+
+`/portal/contracts/[id]/print` bildet das eigentliche Vertragsdokument ab
+(Kunde erreicht es über das Portal, `ADMIN`/`SALES` zusätzlich über den
+Button „Vertragsvorschau" in `/admin/contracts/[id]`). Aufbau, orientiert am
+realen mk | hotels-Firmenpreisvertrag:
+
+1. **Deckblatt** – Firma (Name, Ansprechpartner, Adresse, Kontakt) und
+   mk | hotels als feste Vertragspartei (siehe unten).
+2. **Vertragstexte** – Volltext der ausgewählten `ContractTerm`-Einträge
+   (`ContractTerm.bodyText`, siehe Abschnitt
+   [Wichtige Seiten & Workflows](#wichtige-seiten--workflows) → `/admin/terms`).
+3. **Unterschriften** – Kunde(n) + zuständiger Mitarbeiter
+   (`Contract.responsibleUser`, inkl. Unterschrift aus dessen Profil und
+   Jobtitel).
+4. **Hotelinformationen** – ein Infoblatt pro Hotel im Vertrag (Beschreibung,
+   Adresse, Reservierungskontakt, Zimmerraten, MwSt., Stornofrist, Internet,
+   Parken), gespeist aus dem `Hotel`-Modul.
+
+**Feste Vertragspartei „mk | hotels"**: laut Vertragstext (§1) tritt
+mk | hotels bei allen Firmenraten-Verträgen als derselbe Dienstleister auf,
+unabhängig vom jeweiligen Hotel. Name/Adresse/Telefon/Fax sind daher als
+Konstante in `lib/contractParty.ts` hinterlegt (nicht über die
+Datenbank/UI pflegbar – bei Änderungen dort direkt anpassen). Nur der
+unterschreibende Mitarbeiter (Name, Jobtitel, E-Mail) variiert je Vertrag
+über `Contract.responsibleUser` bzw. dessen Profil (`/admin/profile`).
+
+**Vertragsbedingungen pflegen (`/admin/terms`)**: der Volltext (§1–§9 im
+Muster) liegt in `ContractTerm.bodyText` und ist dort direkt bearbeitbar,
+ohne Code-Änderung. Da pro Version ein `validFrom`-Datum erfasst wird, sollte
+bei Wortlaut-Änderungen (z.B. neues Vertragsjahr/neues Enddatum) eine **neue**
+Version angelegt statt die alte überschrieben werden.
+
+Fertige Texte zum Einfügen unter `/admin/terms/new` liegen im Repo-Root:
+`vertragsbedingungen-firmenraten-2025-DE.txt` (1:1 aus dem
+Referenzvertrag übernommen, kleinere OCR-/Tippfehler korrigiert) und
+`vertragsbedingungen-firmenraten-2025-EN.txt` (Entwurfsübersetzung –
+**vor dem ersten Einsatz bei einem englischsprachigen Kunden von einem
+Juristen/englischsprachigen Kollegen gegenprüfen lassen**).
+
+**Hotelspezifische Daten (`/admin/hotels/[id]`)**: pro Hotel pflegbar sind
+Vertragsbeschreibung, Parkinformationen, Stornobedingungen, MwSt.-Hinweis
+und Internet-Hinweis, jeweils auf Deutsch/Englisch (`Hotel.contractDescriptionDe/En`,
+`parkingInfoDe/En`, `cancellationTermsDe/En`, `vatInfoDe/En`,
+`internetInfoDe/En`). Reservierungstelefon/-E-Mail und Kategorie waren
+bereits vorher pflegbar.
 
 ## Deployment auf Vercel
 

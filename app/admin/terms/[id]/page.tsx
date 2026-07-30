@@ -17,7 +17,8 @@ export default async function EditTermPage({ params }: { params: { id: string } 
           title: term.title,
           language: term.language,
           validFrom: term.validFrom.toISOString().slice(0, 10),
-          fileUrl: term.fileUrl,
+          bodyText: term.bodyText ?? "",
+          fileUrl: term.fileUrl ?? "",
         }}
       />
     </div>

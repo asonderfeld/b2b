@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import {
@@ -41,10 +42,15 @@ export default async function AdminContractDetailPage({ params }: { params: { id
             {contract.company.name} · Stufe: {contractStageLabels[contract.stage]}
           </p>
         </div>
-        <StatusBadge
-          label={contractStatusLabels[contract.status]}
-          colorClass={contractStatusColors[contract.status]}
-        />
+        <div className="flex items-center gap-3">
+          <Link href={`/portal/contracts/${contract.id}/print`} className="btn-secondary" target="_blank">
+            Vertragsvorschau
+          </Link>
+          <StatusBadge
+            label={contractStatusLabels[contract.status]}
+            colorClass={contractStatusColors[contract.status]}
+          />
+        </div>
       </div>
 
       <div className="card space-y-2">

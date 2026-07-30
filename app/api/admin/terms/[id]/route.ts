@@ -15,7 +15,8 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       title: data.title,
       language: data.language,
       validFrom: new Date(data.validFrom),
-      fileUrl: data.fileUrl,
+      bodyText: data.bodyText || null,
+      fileUrl: data.fileUrl || null,
     },
   });
   return NextResponse.json({ term });

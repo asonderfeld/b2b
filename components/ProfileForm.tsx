@@ -8,12 +8,13 @@ const MAX_FILE_BYTES = 1_000_000; // 1 MB
 export function ProfileForm({
   initial,
 }: {
-  initial: { name: string; email: string; signatureUrl: string | null };
+  initial: { name: string; email: string; jobTitle: string | null; signatureUrl: string | null };
 }) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [name, setName] = useState(initial.name);
+  const [jobTitle, setJobTitle] = useState(initial.jobTitle ?? "");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
@@ -76,6 +77,7 @@ export function ProfileForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
+          jobTitle,
           ...(newPassword ? { currentPassword, newPassword } : {}),
           ...(signatureRemoved || signatureDataUrl !== undefined ? { signatureDataUrl } : {}),
         }),
@@ -119,6 +121,18 @@ export function ProfileForm({
         <div>
           <label className="label">Name *</label>
           <input required className="input" value={name} onChange={(e) => setName(e.target.value)} />
+        </div>
+        <div>
+          <label className="label">Jobtitel</label>
+          <input
+            className="input"
+            placeholder="z.B. Assistentin der Geschäftsführung"
+            value={jobTitle}
+            onChange={(e) => setJobTitle(e.target.value)}
+          />
+          <p className="text-xs text-neutral-500 mt-1">
+            Erscheint zusammen mit deinem Namen im Unterschriftsblock des Vertragsdokuments.
+          </p>
         </div>
       </div>
 

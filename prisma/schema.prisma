@@ -120,6 +120,9 @@ model User {
   passwordHash String
   name         String
   role         UserRole  @default(SALES)
+  // Jobtitel für den Unterschriftsblock auf dem Vertragsdokument
+  // (z.B. "Assistentin der Geschäftsführung"), siehe app/portal/contracts/[id]/print.
+  jobTitle     String?
   contactId    String?   @unique
   contact      Contact?  @relation(fields: [contactId], references: [id])
   // Digitale Unterschrift (PNG als Base64-Data-URL, analog zu den
@@ -203,6 +206,10 @@ model Hotel {
   parkingInfoEn             String?   @db.Text
   cancellationTermsDe       String?   @db.Text
   cancellationTermsEn       String?   @db.Text
+  vatInfoDe                 String?   @db.Text
+  vatInfoEn                 String?   @db.Text
+  internetInfoDe            String?   @db.Text
+  internetInfoEn            String?   @db.Text
   otherInfoDe               String?   @db.Text
   otherInfoEn               String?   @db.Text
 
@@ -233,7 +240,11 @@ model ContractTerm {
   title     String
   language  ContractTermLanguage
   validFrom DateTime
-  fileUrl   String
+  // Volltext der Vertragsbedingungen (Klartext, wird mit Zeilenumbrüchen
+  // gerendert), erscheint direkt im Vertragsdokument. fileUrl bleibt als
+  // optionaler zusätzlicher Download-Link erhalten.
+  bodyText  String?               @db.Text
+  fileUrl   String?
   createdAt DateTime              @default(now())
 
   contracts ContractTermLink[]

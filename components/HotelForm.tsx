@@ -24,6 +24,10 @@ export type HotelFormData = {
   parkingInfoEn: string;
   cancellationTermsDe: string;
   cancellationTermsEn: string;
+  vatInfoDe: string;
+  vatInfoEn: string;
+  internetInfoDe: string;
+  internetInfoEn: string;
   otherInfoDe: string;
   otherInfoEn: string;
 };
@@ -48,6 +52,10 @@ const EMPTY: HotelFormData = {
   parkingInfoEn: "",
   cancellationTermsDe: "",
   cancellationTermsEn: "",
+  vatInfoDe: "",
+  vatInfoEn: "",
+  internetInfoDe: "",
+  internetInfoEn: "",
   otherInfoDe: "",
   otherInfoEn: "",
 };
@@ -181,11 +189,45 @@ export function HotelForm({ initial }: { initial?: HotelFormData }) {
           </div>
           <div>
             <label className="label">Stornobedingungen (DE)</label>
-            <textarea className="input" rows={3} value={form.cancellationTermsDe} onChange={(e) => set("cancellationTermsDe", e.target.value)} />
+            <textarea
+              className="input"
+              rows={3}
+              placeholder="z.B. 18:00 Uhr am Anreisetag"
+              value={form.cancellationTermsDe}
+              onChange={(e) => set("cancellationTermsDe", e.target.value)}
+            />
           </div>
           <div>
             <label className="label">Stornobedingungen (EN)</label>
             <textarea className="input" rows={3} value={form.cancellationTermsEn} onChange={(e) => set("cancellationTermsEn", e.target.value)} />
+          </div>
+          <div>
+            <label className="label">MwSt.-Hinweis (DE)</label>
+            <textarea
+              className="input"
+              rows={2}
+              placeholder="z.B. 7% auf Übernachtung, 19% auf Frühstück"
+              value={form.vatInfoDe}
+              onChange={(e) => set("vatInfoDe", e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="label">MwSt.-Hinweis (EN)</label>
+            <textarea className="input" rows={2} value={form.vatInfoEn} onChange={(e) => set("vatInfoEn", e.target.value)} />
+          </div>
+          <div>
+            <label className="label">Internet (DE)</label>
+            <textarea
+              className="input"
+              rows={2}
+              placeholder="z.B. W-LAN, kostenfreie Nutzung"
+              value={form.internetInfoDe}
+              onChange={(e) => set("internetInfoDe", e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="label">Internet (EN)</label>
+            <textarea className="input" rows={2} value={form.internetInfoEn} onChange={(e) => set("internetInfoEn", e.target.value)} />
           </div>
           <div>
             <label className="label">Sonstige Hinweise (DE)</label>

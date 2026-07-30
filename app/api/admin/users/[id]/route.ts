@@ -10,7 +10,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   if ("response" in auth) return auth.response;
 
   const data = await req.json().catch(() => ({}));
-  const { name, email, role, password } = data;
+  const { name, email, role, password, jobTitle } = data;
 
   if (!name || !email) {
     return NextResponse.json({ error: "Name und E-Mail sind erforderlich." }, { status: 400 });
@@ -32,6 +32,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         name,
         email: email.toLowerCase().trim(),
         role,
+        jobTitle: jobTitle?.trim() || null,
         ...(password ? { passwordHash: await bcrypt.hash(password, 10) } : {}),
       },
     });

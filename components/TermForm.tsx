@@ -8,10 +8,11 @@ export type TermFormData = {
   title: string;
   language: string;
   validFrom: string;
+  bodyText: string;
   fileUrl: string;
 };
 
-const EMPTY: TermFormData = { title: "", language: "DE", validFrom: "", fileUrl: "" };
+const EMPTY: TermFormData = { title: "", language: "DE", validFrom: "", bodyText: "", fileUrl: "" };
 
 export function TermForm({ initial }: { initial?: TermFormData }) {
   const router = useRouter();
@@ -74,17 +75,32 @@ export function TermForm({ initial }: { initial?: TermFormData }) {
         <input required type="date" className="input" value={form.validFrom} onChange={(e) => set("validFrom", e.target.value)} />
       </div>
       <div>
-        <label className="label">Datei-URL / Pfad (PDF) *</label>
+        <label className="label">Vertragstext</label>
+        <textarea
+          className="input font-mono text-xs"
+          rows={20}
+          placeholder={"1. Gegenstand\n\nDiese Vereinbarung regelt...\n\n\n2. Vertragslaufzeiten\n\n..."}
+          value={form.bodyText}
+          onChange={(e) => set("bodyText", e.target.value)}
+        />
+        <p className="text-xs text-neutral-500 mt-1">
+          Erscheint als Fließtext direkt im Vertragsdokument (Kunden-Ansicht/Druckansicht).
+          Absätze durch eine Leerzeile trennen. Da „Gültig ab" bereits pro Version erfasst wird,
+          bei Änderungen am Wortlaut (z.B. neues Vertragsjahr) am besten eine neue Version statt
+          Überschreiben der alten anlegen.
+        </p>
+      </div>
+      <div>
+        <label className="label">Datei-URL / Pfad (PDF, optional)</label>
         <input
-          required
           className="input"
           placeholder="/dokumente/agb-2026-de.pdf"
           value={form.fileUrl}
           onChange={(e) => set("fileUrl", e.target.value)}
         />
         <p className="text-xs text-neutral-500 mt-1">
-          MVP-Hinweis: Es wird kein Datei-Upload durchgeführt – hier wird der Pfad/die URL zur bereits
-          abgelegten PDF-Datei hinterlegt (z.B. in einem Objektspeicher wie Vercel Blob oder S3).
+          Zusätzlicher Download-Link, falls gewünscht (kein Datei-Upload – nur Pfad/URL zu einer
+          bereits abgelegten Datei, z.B. in einem Objektspeicher wie Vercel Blob oder S3).
         </p>
       </div>
       <div className="flex justify-between items-center">

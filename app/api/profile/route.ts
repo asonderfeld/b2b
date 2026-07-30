@@ -16,7 +16,7 @@ export async function PUT(req: Request) {
   const { session } = auth;
 
   const data = await req.json().catch(() => ({}));
-  const { name, currentPassword, newPassword, signatureDataUrl } = data;
+  const { name, jobTitle, currentPassword, newPassword, signatureDataUrl } = data;
 
   const user = await prisma.user.findUnique({ where: { id: session.user.id } });
   if (!user) {
@@ -27,6 +27,10 @@ export async function PUT(req: Request) {
 
   if (typeof name === "string" && name.trim()) {
     updateData.name = name.trim();
+  }
+
+  if (typeof jobTitle === "string") {
+    updateData.jobTitle = jobTitle.trim() || null;
   }
 
   if (newPassword) {
