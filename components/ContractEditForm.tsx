@@ -82,7 +82,7 @@ export function ContractEditForm({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Aktion fehlgeschlagen.");
-      setMessage("Status aktualisiert.");
+      setMessage(action === "RESEND_LINK" ? "Link wurde erneut versendet." : "Status aktualisiert.");
       router.refresh();
     } catch (err: any) {
       setError(err.message);
@@ -126,9 +126,18 @@ export function ContractEditForm({
             </>
           )}
           {contract.status === "AWAITING_SIGNATURE" && (
-            <p className="text-sm text-neutral-500">
-              Warten auf Unterschrift(en) des Kunden im Kundenportal.
-            </p>
+            <>
+              <p className="text-sm text-neutral-500">
+                Warten auf Unterschrift(en) des Kunden im Kundenportal.
+              </p>
+              <button
+                className="btn-secondary"
+                disabled={actionLoading !== null}
+                onClick={() => runAction("RESEND_LINK")}
+              >
+                Link erneut senden
+              </button>
+            </>
           )}
           {contract.status === "AWAITING_FINALIZATION" && contract.stage !== "STAGE_4_FINAL_CREATED" && (
             <button
@@ -148,7 +157,19 @@ export function ContractEditForm({
               Vertrag (final) an Kunden senden
             </button>
           )}
-          {contract.status === "RUNNING" && (
+          {contract.status === "RUNNING" && contract.stage === "STAGE_5_FINAL_SENT" && (
+            <>
+              <p className="text-sm text-green-700">Der Vertrag läuft.</p>
+              <button
+                className="btn-secondary"
+                disabled={actionLoading !== null}
+                onClick={() => runAction("RESEND_LINK")}
+              >
+                Link erneut senden
+              </button>
+            </>
+          )}
+          {contract.status === "RUNNING" && contract.stage !== "STAGE_5_FINAL_SENT" && (
             <p className="text-sm text-green-700">Der Vertrag läuft.</p>
           )}
           {(contract.status === "ENDED" || contract.status === "NOT_CONCLUDED") && (

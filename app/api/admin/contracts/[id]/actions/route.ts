@@ -10,7 +10,7 @@ import type { Contact } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
-type ActionType = "SEND_DRAFT_EXISTING" | "SEND_DRAFT_NEW" | "FINALIZE" | "SEND_FINAL";
+type ActionType = "SEND_DRAFT_EXISTING" | "SEND_DRAFT_NEW" | "FINALIZE" | "SEND_FINAL" | "RESEND_LINK";
 
 /**
  * Verschickt eine Vertragsmail (Entwurf oder final) an einen Kontakt: erzeugt
@@ -179,6 +179,69 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       void pushCompanyToApaleo; // referenziert den Hook, ohne ihn aktiv aufzurufen
 
       return NextResponse.json({ contract: updated });
+    }
+
+    case "RESEND_LINK": {
+      // Erneuter Versand des Login-Links (mit frischem Einmal-Token) für
+      // Verträge, die bereits verschickt wurden – z.B. wenn ein
+      // Sicherheits-Scanner im Mailsystem des Kunden den ursprünglichen Link
+      // vorzeitig verbraucht hat. Ändert weder Status noch Stage, sondern
+      // erzeugt nur einen neuen Token und schickt die passende Mail erneut.
+      let kind: "DRAFT" | "FINAL";
+      if (contract.status === "AWAITING_SIGNATURE") {
+        kind = "DRAFT";
+      } else if (contract.stage === "STAGE_5_FINAL_SENT") {
+        kind = "FINAL";
+      } else {
+        return NextResponse.json(
+          { error: "Für diesen Vertragsstatus gibt es keinen erneut zu versendenden Link." },
+          { status: 400 },
+        );
+      }
+
+      const allRecipients = [contract.contact, contract.secondContact].filter(
+        (c): c is Contact => !!c,
+      );
+
+      // Bei einem noch nicht final unterschriebenen Vertrag nur an die
+      // Kontakte erneut senden, die noch nicht unterschrieben haben – wer
+      // schon unterschrieben hat, braucht keinen neuen Link mehr.
+      const recipients =
+        kind === "DRAFT"
+          ? allRecipients.filter((c) => {
+              if (c.id === contract.contactId) return !contract.signature1Url;
+              if (c.id === contract.secondContactId) return !contract.signature2Url;
+              return true;
+            })
+          : allRecipients;
+
+      if (recipients.length === 0) {
+        return NextResponse.json(
+          { error: "Es liegen bereits alle erforderlichen Unterschriften vor." },
+          { status: 400 },
+        );
+      }
+
+      try {
+        for (const recipient of recipients) {
+          await sendContractMailToContact({
+            contact: recipient,
+            contractId: contract.id,
+            contractNumber: contract.contractNumber,
+            companyName: contract.company.name,
+            language: contract.language,
+            kind,
+          });
+        }
+      } catch (mailError) {
+        console.error("Fehler beim erneuten Versand des Links:", mailError);
+        return NextResponse.json(
+          { error: "Link konnte nicht erneut per E-Mail versendet werden. Bitte erneut versuchen." },
+          { status: 502 },
+        );
+      }
+
+      return NextResponse.json({ contract });
     }
 
     default:
