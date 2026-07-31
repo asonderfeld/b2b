@@ -85,8 +85,35 @@ export const authOptions: AuthOptions = {
               },
             });
           } catch {
-            // Race Condition / E-Mail bereits als User vorhanden.
-            user = await prisma.user.findUnique({ where: { email: contact.email } });
+            // Unique-Constraint auf E-Mail: Es existiert bereits ein
+            // User-Konto mit dieser E-Mail-Adresse – z.B. weil dieselbe
+            // Person als Ansprechpartner bei mehreren Firmen hinterlegt ist,
+            // oder aus einem früheren (ggf. abgebrochenen) Login-Versuch.
+            // Da der gerade eingelöste Token eindeutig zu DIESEM Kontakt
+            // gehört, muss das Konto auf diesen Kontakt umgehängt werden –
+            // sonst würde der Kunde mit der falschen Kontakt-/Firmenzuordnung
+            // eingeloggt und der Vertrag wäre für ihn nicht auffindbar (404).
+            const existing = await prisma.user.findUnique({ where: { email: contact.email } });
+            if (existing && existing.role === "CUSTOMER" && existing.contactId !== contact.id) {
+              // Bestehendes Kunden-Konto war noch an einen anderen Kontakt
+              // gehängt (z.B. eine andere Firma) – auf den aktuellen Kontakt
+              // umhängen, da der eingelöste Token eindeutig diesem Kontakt
+              // zugeordnet ist.
+              user = await prisma.user.update({
+                where: { id: existing.id },
+                data: { contactId: contact.id },
+              });
+            } else if (existing && existing.role !== "CUSTOMER") {
+              // Die E-Mail-Adresse gehört zu einem internen Mitarbeiterkonto
+              // (ADMIN/SALES) – dieses darf nicht überschrieben/umgehängt
+              // werden. Login wird abgelehnt, Fall braucht manuelle Prüfung.
+              console.error(
+                `Magic-Link-Login: E-Mail ${contact.email} ist bereits einem internen Konto (Rolle ${existing.role}) zugeordnet, kein automatisches Umhängen möglich.`,
+              );
+              return null;
+            } else {
+              user = existing;
+            }
           }
         }
         if (!user) return null;
